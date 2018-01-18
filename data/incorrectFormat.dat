@@ -1,0 +1,18 @@
+# mc price: 4.67
+# mc standard deviation: 0.029
+
+
+model type          <string>  bs
+option size         <int>     deux
+strike              <float>   djfsd
+spot                <vector>  shqh
+maturity            <float>   1.5
+volatility          <vector>  0.2
+interest rate       <float>   0.02
+correlation         <float>   0.0
+
+option type         <string>  asian
+payoff coefficients <vector>  0.5
+
+timestep number     <int>     150
+sample number       <long>    50000

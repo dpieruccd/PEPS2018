@@ -1,0 +1,17 @@
+# mc price: 13.627
+# mc standard deviation: 0.025
+
+
+model type          <string>  eu
+option size         <int>     5
+strike              <float>   100
+spot                <vector>  100 100 100 1 1
+maturity            <float>   8
+volatility          <vector>  0.2
+interest rate       <float>   0.04879
+correlation         <float>   0.1
+payoff coefficients <vector> 0.025
+option type         <string>  eurostral
+
+timestep number     <int>     16
+sample number       <long>     50000
