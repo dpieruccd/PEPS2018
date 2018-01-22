@@ -28,7 +28,7 @@ int main (int argc, char **argv)
     size_t n_samples;
     u.get_param(infile, T, r, strike, rho, &spot, &sigma, &divid, &lambdas, optionType, size, timestep, n_samples, fdStep);
     trend = pnl_vect_create(5) ;
-    pnl_vect_set(trend,0,0.04) ;
+    pnl_vect_set(trend,0,0.04);
     pnl_vect_set(trend,1,0.00879);
     pnl_vect_set(trend,2,0.05);
     pnl_vect_set(trend,3,r-0.04);
