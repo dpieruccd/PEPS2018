@@ -45,12 +45,10 @@ void MonteCarlo::price(double &prix, double &ic)
 // firstprivate to make a copy of each object
 //
 // #pragma omp parallel for reduction(+:sum, sq_sum) firstprivate(path_, mod_, opt_, rng_)
-    cout << opt_->nbTimeSteps_ << endl ;
     
     for(int M = 1; M <= nbSamples_; M++)
     {
       mod_->asset(path_, opt_->T_, opt_->nbTimeSteps_, rng_);
-      pnl_mat_print(path_);
       payoff_ = opt_->payoff(path_);
       sum += payoff_;
       sq_sum += payoff_ * payoff_;
@@ -109,6 +107,20 @@ void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta){
       sum = sum * actualisation(t) * (1/ (2* fdStep_ *MGET(past,past->m -1,d)));
       pnl_vect_set(delta,d,sum);
     }
+
+   
+    pnl_mat_print(path_);
+    double tmp;
+    cout << pnl_mat_get(path_,0,3) << endl;
+    tmp = pnl_vect_get(delta,1) / pnl_mat_get(path_,0,3);
+    pnl_vect_set(delta,1,tmp);
+    tmp = pnl_vect_get(delta,2) / pnl_mat_get(path_,0,4);
+    pnl_vect_set(delta,2,tmp);
+    tmp = exp(pnl_vect_get(mod_->trends_,1)*opt_->T_)*(pnl_mat_get(path_,0,1)*pnl_vect_get(delta,1)-pnl_vect_get(delta,3));
+    pnl_vect_set(delta,3,tmp);
+    tmp = exp(pnl_vect_get(mod_->trends_,2)*opt_->T_)*(pnl_mat_get(path_,0,2)*pnl_vect_get(delta,2)-pnl_vect_get(delta,4));
+    pnl_vect_set(delta,4,tmp);
+    
     pnl_mat_free(&path_);
     pnl_mat_free(&path_Plus);
     pnl_mat_free(&path_Minus);
