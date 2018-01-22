@@ -50,6 +50,7 @@ void MonteCarlo::price(double &prix, double &ic)
     for(int M = 1; M <= nbSamples_; M++)
     {
       mod_->asset(path_, opt_->T_, opt_->nbTimeSteps_, rng_);
+      pnl_mat_print(path_);
       payoff_ = opt_->payoff(path_);
       sum += payoff_;
       sq_sum += payoff_ * payoff_;
@@ -66,14 +67,20 @@ void MonteCarlo::price(const PnlMat *past, double t, double &prix, double &ic)
   }
   PnlMat *path_ = pnl_mat_create_from_zero(opt_->nbTimeSteps_ + 1, mod_->size_);
   double sum = 0, sq_sum = 0, payoff_, cf_act_ = actualisation(t);
-
+  PnlVect *vect=pnl_vect_create_from_zero(2);
+  PnlVect *pathb=pnl_vect_create_from_zero(2);
   for(int M = 1; M <= nbSamples_; M++)
   {
     mod_->asset(path_, t, opt_->T_, opt_->nbTimeSteps_, rng_, past);
+    //pnl_mat_print(path_);
     payoff_ = opt_->payoff(path_);
+    pnl_mat_get_row(pathb,path_,1);
+    pnl_vect_plus_vect(vect,pathb);
 	  sum += payoff_;
     sq_sum += payoff_ * payoff_;
   }
+
+  pnl_vect_print(vect);
   prix = cf_act_ * sum;
   ic = 1.96 * cf_act_ * sqrt(sq_sum - pow(sum, 2) / nbSamples_);
   pnl_mat_free(&path_);
