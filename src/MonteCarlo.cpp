@@ -109,9 +109,40 @@ void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta){
     }
 
    
-    pnl_mat_print(path_);
     double tmp;
-    cout << pnl_mat_get(path_,0,3) << endl;
+    cout << typeid(opt_).name() << endl;
+    pnl_mat_free(&path_);
+    pnl_mat_free(&path_Plus);
+    pnl_mat_free(&path_Minus);
+}
+
+void MonteCarlo::deltaEurostral(const PnlMat *past, double t, PnlVect *delta){
+    if (t> opt_->T_)
+      throw std::string("t is greater than the maturity");
+
+    PnlMat *path_ = pnl_mat_create_from_zero(opt_->nbTimeSteps_ + 1, mod_->size_);
+    PnlMat *path_Plus = pnl_mat_create_from_zero(opt_->nbTimeSteps_ + 1, mod_->size_);
+    PnlMat *path_Minus = pnl_mat_create_from_zero(opt_->nbTimeSteps_ + 1, mod_->size_);
+
+    double sum = 0, payoff_ = 0.0;
+
+    for (int d = 0; d < mod_->size_; d++)
+    {
+      for(int M = 1; M <= nbSamples_; M++)
+      {
+        mod_->asset(path_, t, opt_->T_, opt_->nbTimeSteps_, rng_, past);
+        mod_->shiftAsset(path_Plus, path_, d, fdStep_ ,t, opt_->T_ / opt_->nbTimeSteps_ );
+        mod_->shiftAsset(path_Minus, path_, d, -fdStep_ ,t, opt_->T_ / opt_->nbTimeSteps_ );
+        payoff_ = opt_->payoff(path_Plus) - opt_->payoff(path_Minus);
+        sum += payoff_;
+      }
+      sum = sum * actualisation(t) * (1/ (2* fdStep_ *MGET(past,past->m -1,d)));
+      pnl_vect_set(delta,d,sum);
+    }
+
+   
+    double tmp;
+    cout << typeid(opt_).name() << endl;
     tmp = pnl_vect_get(delta,1) / pnl_mat_get(path_,0,3);
     pnl_vect_set(delta,1,tmp);
     tmp = pnl_vect_get(delta,2) / pnl_mat_get(path_,0,4);

@@ -87,6 +87,18 @@ public:
      */
     void delta(const PnlMat *past, double t, PnlVect *delta);
 
+
+   /**
+     * Calcule le delta du produit Eurostral100  à la date t
+     *
+     * @param[in] past contient la trajectoire du sous-jacent
+     * jusqu'à l'instant t
+     * @param[in] t date à laquelle le calcul est fait
+     * @param[out] delta contient le vecteur de delta
+     * de confiance sur le calcul du delta
+     */
+    void deltaEurostral(const PnlMat *past, double t, PnlVect *delta);
+
     /**
      * Calcule le Profit & Loss
      *

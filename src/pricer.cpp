@@ -67,7 +67,11 @@ int main (int argc, char **argv)
 
       clock_t startDelta;
       startDelta = clock();
-      mc.delta(past, 0, deltas);
+      if ( optionType == "eurostral") {
+	mc.deltaEurostral(past,0,deltas);
+      } else {
+	mc.delta(past, 0, deltas);
+      }
       clock_t endDelta = (clock() - startDelta) / (double)(CLOCKS_PER_SEC/1000);
 
       cout << "\nPrice at t=0 with pnl function: " << pnl_bs_call(100,strike,T,r,0,0.2) << endl;
