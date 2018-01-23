@@ -52,6 +52,25 @@ BlackScholesModel::~BlackScholesModel()
            PnlVect viewCorr = pnl_vect_wrap_mat_row(corr, j);
            double prodScal = pnl_vect_scalar_prod(&viewCorr,g);
            double sigmaShare = GET(sigma_, j);
+           double bs = GET(&pastPrices,j) * exp( (r_ - (pow(sigmaShare,2)/2))*(T/nbTimeSteps) +  sigmaShare*sqrt(T/nbTimeSteps)*prodScal) ;
+
+           pnl_mat_set(path, i+1, j, bs);
+       }
+       pastPrices = pnl_vect_wrap_mat_row(path, i+1);
+   }
+ }
+
+ void BlackScholesModel::assetEurostral(PnlMat *path, double T, int nbTimeSteps, PnlRng *rng){
+   pnl_mat_set_row(path, spot_, 0);
+
+   PnlVect pastPrices = *spot_;
+
+   for (int i = 0; i < nbTimeSteps; i++){
+       pnl_vect_rng_normal(g, size_, rng);
+       for (int j = 0; j < size_; j++){
+           PnlVect viewCorr = pnl_vect_wrap_mat_row(corr, j);
+           double prodScal = pnl_vect_scalar_prod(&viewCorr,g);
+           double sigmaShare = GET(sigma_, j);
            double bs = GET(&pastPrices,j) * exp( (pnl_vect_get(trends_,j) - (pow(sigmaShare,2)/2))*(T/nbTimeSteps) +  sigmaShare*sqrt(T/nbTimeSteps)*prodScal) ;
 
            pnl_mat_set(path, i+1, j, bs);
@@ -83,6 +102,47 @@ void BlackScholesModel::asset_static(PnlMat *path, double T, int nbTimeSteps, Pn
  }
 
 void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps, PnlRng *rng, const PnlMat *past){
+  double discrStep = T/nbTimeSteps;
+
+  //First we compute the value of the next discretisation point: t(i+1)
+  int nextDiscrPointIndex = -floor(-(t/discrStep));
+  double firstStep = nextDiscrPointIndex*discrStep - t;
+
+  //Then we copy s(t0), s(t1), ... s(ti) in the path matrix
+  if (firstStep == 0.0) {//if t is a point of discretisation: t = ti
+    pnl_mat_set_subblock(path, past, 0, 0);
+    firstStep = discrStep;
+    nextDiscrPointIndex += 1;
+  } else {
+    for (int i=0; i < past->m -1; i++){
+      PnlVect vectView = pnl_vect_wrap_mat_row(past, i);
+      pnl_mat_set_row(path, &vectView, i);
+    }
+  }
+
+  //Then we compute the next S
+  PnlVect pastPrices = pnl_vect_wrap_mat_row(past, past->m -1);
+
+  for (int i= nextDiscrPointIndex; i < nbTimeSteps+1; i++){
+    pnl_vect_rng_normal(g, size_, rng);
+    for (int share = 0; share < size_; share++){
+        PnlVect viewCorr = pnl_vect_wrap_mat_row(corr, share);
+        double prodScal = pnl_vect_scalar_prod(&viewCorr,g);
+        double step;
+        if (i == nextDiscrPointIndex){
+          step = firstStep;
+        } else {
+          step = discrStep;
+        }
+        double sigmaShare = GET(sigma_, share);
+        double bs = GET(&pastPrices,share) * exp( (r_ - (pow(sigmaShare,2)/2))*step +  sigmaShare*sqrt(step)*prodScal) ;
+        pnl_mat_set(path, i, share, bs);
+    }
+    pastPrices = pnl_vect_wrap_mat_row(path, i);
+  }
+}
+
+void BlackScholesModel::assetEurostral(PnlMat *path, double t, double T, int nbTimeSteps, PnlRng *rng, const PnlMat *past){
   double discrStep = T/nbTimeSteps;
 
   //First we compute the value of the next discretisation point: t(i+1)

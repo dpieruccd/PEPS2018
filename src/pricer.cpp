@@ -62,7 +62,11 @@ int main (int argc, char **argv)
 
       clock_t startPrice;
       startPrice = clock();
-      mc.price(initialPrice, initialConf);
+      if ( optionType == "eurostral") {
+	mc.priceEurostral(initialPrice, initialConf);
+      } else {
+	mc.price(initialPrice, initialConf);
+      }
       clock_t endPrice = (clock() - startPrice) / (double)(CLOCKS_PER_SEC/1000);
 
       clock_t startDelta;
