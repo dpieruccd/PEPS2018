@@ -285,7 +285,8 @@ void MonteCarlo::PL_build_V_Eurostral(const PnlMat *past, double H,PnlVect *delt
     double r_dollar= -1*pnl_vect_get(mod_->trends_,3) + mod_->r_;
     double r_aus= -1*pnl_vect_get(mod_->trends_,4) + mod_->r_;
     pnl_vect_clone(prevDelta, delta);
-
+    double trackingErrror;
+    double prix,ic;
     for(int i = 1; i < H; i++)
     {
         tho = i * opt_->T_ /H;
@@ -297,8 +298,9 @@ void MonteCarlo::PL_build_V_Eurostral(const PnlMat *past, double H,PnlVect *delt
         pnl_vect_set(&S,2,pnl_vect_get(&S,2)*pnl_vect_get(&S,4));
         pnl_vect_set(&S,3,exp(-((opt_->T_-tho)* r_dollar))* pnl_vect_get(&S,3)) ;
         pnl_vect_set(&S,4,exp(-((opt_->T_-tho)* r_aus))* pnl_vect_get(&S,4)) ;
-
-
+        this->priceEurostral(cPast,tho,prix,ic);
+        trackingErrror=pnl_vect_scalar_prod(prevDelta, &S)- prix;
+        cout<<trackingErrror<<endl;
         pnl_vect_minus_vect(prevDelta, delta);
 
         pnl_vect_set(V, i,
