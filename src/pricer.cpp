@@ -110,15 +110,22 @@ int main (int argc, char **argv)
       pnl_mat_free(&past);
 
     } else if (argc == 6){
-      double price, conf;
+      double price, conf,pl;
       double t = atof(argv[2]);
       char *infile = argv[4];
       PnlMat* past = pnl_mat_create_from_file(infile);
       PnlMat* pastAtConstatation = u.getConstatationDates(past, mc.opt_, t);
       PnlVect* deltas = pnl_vect_create_from_zero(bsModel.size_);
 
-      mc.price(pastAtConstatation, t, price, conf);
-      mc.delta(pastAtConstatation, t, deltas);
+      clock_t startPL;
+      startPL = clock();
+      mc.profitLoss_Eurostral(past, past->m - 1, pl);
+      clock_t endPL = (clock() - startPL) / (double)(CLOCKS_PER_SEC/1000);
+
+      cout << "\nP&L : " << pl << endl;
+      cout << "Time for P&L: " << endPL << " ms\n" << endl;
+      mc.priceEurostral(pastAtConstatation, t, price, conf);
+      mc.deltaEurostral(pastAtConstatation, t, deltas);
 
       cout << "\nPrice at t= " << t << ": " << price << endl;
       cout << "IC: " << conf << endl;
