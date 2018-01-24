@@ -52,7 +52,7 @@ BlackScholesModel::~BlackScholesModel()
            PnlVect viewCorr = pnl_vect_wrap_mat_row(corr, j);
            double prodScal = pnl_vect_scalar_prod(&viewCorr,g);
            double sigmaShare = GET(sigma_, j);
-           double bs = GET(&pastPrices,j) * exp( (r_ - (pow(sigmaShare,2)/2))*(T/nbTimeSteps) +  sigmaShare*sqrt(T/nbTimeSteps)*prodScal) ;
+           double bs = GET(&pastPrices,j) * exp( (pnl_vect_get(trends_,j) - (pow(sigmaShare,2)/2))*(T/nbTimeSteps) +  sigmaShare*sqrt(T/nbTimeSteps)*prodScal) ;
 
            pnl_mat_set(path, i+1, j, bs);
        }
@@ -92,7 +92,7 @@ void BlackScholesModel::asset_static(PnlMat *path, double T, int nbTimeSteps, Pn
        for (int j = 0; j < size_; j++){
            PnlVect viewCorr = pnl_vect_wrap_mat_row(corr, j);
            double prodScal = pnl_vect_scalar_prod(&viewCorr,g);
-           double bs = GET(pastPrices,j) * exp( (r_ - (pow(GET(sigma_, j),2)/2))*(T/nbTimeSteps) +  GET(sigma_, j)*sqrt(T/nbTimeSteps)*prodScal   ) ;
+           double bs = GET(pastPrices,j) * exp( (pnl_vect_get(trends_,j) - (pow(GET(sigma_, j),2)/2))*(T/nbTimeSteps) +  GET(sigma_, j)*sqrt(T/nbTimeSteps)*prodScal   ) ;
            pnl_vect_set(pastPrices, j, bs);
        }
        pnl_mat_set_row(path, pastPrices, i+1);
@@ -135,7 +135,7 @@ void BlackScholesModel::asset(PnlMat *path, double t, double T, int nbTimeSteps,
           step = discrStep;
         }
         double sigmaShare = GET(sigma_, share);
-        double bs = GET(&pastPrices,share) * exp( (r_ - (pow(sigmaShare,2)/2))*step +  sigmaShare*sqrt(step)*prodScal) ;
+        double bs = GET(&pastPrices,share) * exp( ( pnl_vect_get(trends_,share)- (pow(sigmaShare,2)/2))*step +  sigmaShare*sqrt(step)*prodScal) ;
         pnl_mat_set(path, i, share, bs);
     }
     pastPrices = pnl_vect_wrap_mat_row(path, i);

@@ -95,7 +95,7 @@ public:
      * de confiance sur le calcul du prix
      */
     void priceEurostral(const PnlMat *past, double t, double &prix, double &ic);
-    
+
   /**
      * Calcule le delta de l'option à la date t
      *
@@ -161,7 +161,10 @@ public:
     * @param[in] t date à laquelle le calcul est fait
    	*/
   	double actualisation(double t);
-
+    void PL_build_V_Eurostral(const PnlMat *past, double H,PnlVect *delta, PnlVect *V);
+    double PL_init_Eurostral(const PnlMat *past, PnlVect *delta);
+    void PL_finalSet_Eurostral(const PnlMat *past, double v_h, PnlVect *delta, double& pl);
+    void profitLoss_Eurostral(const PnlMat *past, double H, double &pl);
     /**
      * Operateur d'assignation
      *
