@@ -26,14 +26,16 @@ int main (int argc, char **argv)
     string optionType;
     int size, timestep;
     size_t n_samples;
-    u.get_param(infile, T, r, strike, rho, &spot, &sigma, &divid, &lambdas, optionType, size, timestep, n_samples, fdStep);
+
+
+    u.get_param(infile, T, r, strike, rho, &spot, &sigma, &divid, &lambdas, optionType, size, timestep, n_samples, fdStep,&trend);
     //trend = pnl_vect_create(5) ;
-    trend = pnl_vect_create(5);
+    /*trend = pnl_vect_create(5);
     pnl_vect_set(trend,0,r);
     pnl_vect_set(trend,1,0.04-0.1*0.2*0.2);
     pnl_vect_set(trend,2,0.05-0.1*0.2*0.2);
     pnl_vect_set(trend,3,r-0.04);
-    pnl_vect_set(trend,4,r-0.05);
+    pnl_vect_set(trend,4,r-0.05);*/
 
     //Create the Option, the BlackScholesModel and the MonteCarlo instances
     //BlackScholesModel bsModel(size, r, rho, sigma, spot);
@@ -55,6 +57,7 @@ int main (int argc, char **argv)
     MonteCarlo mc(fdStep, n_samples, opt, &bsModel);
 
     //Compute the price and display the result
+
     if (argc == 2){
       double initialPrice, initialConf;
       PnlMat* past = pnl_mat_create(1, spot->size);
@@ -79,7 +82,7 @@ int main (int argc, char **argv)
       }
       clock_t endDelta = (clock() - startDelta) / (double)(CLOCKS_PER_SEC/1000);
 
-      cout << "\nPrice at t=0 with formule fermé: " << pnl_bs_call(100*exp(-(r-0.04-0.01*0.02*0.02)*T),strike,T,r,0,0.2) << endl;
+      cout << "\nPrice at t=0 with formule fermé: " << pnl_bs_call(100*exp(-(r-0.04-0.1*0.2*0.2)*T),strike,T,r,0,0.2) << endl;
 
       cout << "\nPrice at t=0: " << initialPrice << endl;
       cout << "IC: " << initialConf << endl;

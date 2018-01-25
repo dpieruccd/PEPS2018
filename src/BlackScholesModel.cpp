@@ -53,7 +53,6 @@ BlackScholesModel::~BlackScholesModel()
            double prodScal = pnl_vect_scalar_prod(&viewCorr,g);
            double sigmaShare = GET(sigma_, j);
            double bs = GET(&pastPrices,j) * exp( (pnl_vect_get(trends_,j) - (pow(sigmaShare,2)/2))*(T/nbTimeSteps) +  sigmaShare*sqrt(T/nbTimeSteps)*prodScal) ;
-
            pnl_mat_set(path, i+1, j, bs);
        }
        pastPrices = pnl_vect_wrap_mat_row(path, i+1);

@@ -58,7 +58,7 @@ void Utilities::getConstatationDatesFromZero(PnlMat* constDates, const PnlMat* p
 void Utilities::get_param(char *infile, double &T, double &r, double &strike, double &rho,
               PnlVect **spot, PnlVect **sigma, PnlVect **divid, PnlVect **lambdas,
               string &optionType, int &size, int &timestep, size_t &n_samples,
-              double &fdStep)
+              double &fdStep, PnlVect **trend)
 {
   Param *P = new Parser(infile);
   P->extract("option type", optionType);
@@ -69,6 +69,7 @@ void Utilities::get_param(char *infile, double &T, double &r, double &strike, do
   P->extract("payoff coefficients", *lambdas, size);
   P->extract("interest rate", r);
   P->extract("correlation", rho);
+  P->extract("trend", *trend,size);
   if (P->extract("fd step", fdStep) == false){
     fdStep = 0.1;
   }
@@ -110,7 +111,7 @@ char* Utilities::getOptDescrAndCheckParam(int argc, char **argv){
     if (strcmp(argv[1], "--help") == 0){
       std::cout << "./pricer data_input : computes the price (with the associated confidence interval) and the deltas at t=0. Also gives the timing of the function." << std::endl;
       std::cout << "./pricer -c market_file data_input : computes the P&L." << std::endl;
-      std::cerr << "./pricer -d date -c market_file data_input : computes the price (with the associated confidence interval) and the detas at t=date." << std::endl;
+      std::cerr << "./pricer -d date -c market_ftrend               <vector>  1 1 1 1 1ile data_input : computes the price (with the associated confidence interval) and the detas at t=date." << std::endl;
       exit(0);
     } else {
       return argv[1];

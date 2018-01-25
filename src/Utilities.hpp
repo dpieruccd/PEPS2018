@@ -60,7 +60,7 @@ public:
   void get_param(char *infile, double &T, double &r, double &strike, double &rho,
                 PnlVect **spot, PnlVect **sigma, PnlVect **divid, PnlVect **lambdas,
                 string &optionType, int &size, int &timestep, size_t &n_samples,
-                double &fdStep);
+                double &fdStep,PnlVect **trend);
 
   /**
   * Renvoit le nom du fichier où se trouve la description des données du problème

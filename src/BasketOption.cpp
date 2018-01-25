@@ -18,7 +18,6 @@ BasketOption::~BasketOption()
 double BasketOption::payoff(const PnlMat *path){
   double sum_basket=0;
   int i;
-  pnl_mat_print(path);
   for(i=0;i<size_;i++){
     sum_basket+=pnl_vect_get(lambdas_,i)*MGET(path,nbTimeSteps_,i);
   }
