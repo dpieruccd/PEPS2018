@@ -100,7 +100,7 @@ void MonteCarlo::price(const PnlMat *past, double t, double &prix, double &ic)
     sq_sum += payoff_ * payoff_;
   }
 
-  pnl_vect_print(vect);
+  //pnl_vect_print(vect);
   prix = cf_act_ * sum;
   ic = 1.96 * cf_act_ * sqrt(sq_sum - pow(sum, 2) / nbSamples_);
   pnl_mat_free(&path_);
@@ -126,7 +126,7 @@ void MonteCarlo::priceEurostral(const PnlMat *past, double t, double &prix, doub
     sq_sum += payoff_ * payoff_;
   }
 
-  pnl_vect_print(vect);
+  //pnl_vect_print(vect);
   prix = cf_act_ * sum;
   ic = 1.96 * cf_act_ * sqrt(sq_sum - pow(sum, 2) / nbSamples_);
   pnl_mat_free(&path_);
@@ -158,7 +158,7 @@ void MonteCarlo::delta(const PnlMat *past, double t, PnlVect *delta){
 
 
     double tmp;
-    cout << typeid(opt_).name() << endl;
+    //cout << typeid(opt_).name() << endl;
     pnl_mat_free(&path_);
     pnl_mat_free(&path_Plus);
     pnl_mat_free(&path_Minus);
@@ -190,7 +190,7 @@ void MonteCarlo::deltaEurostral(const PnlMat *past, double t, PnlVect *delta){
 
 
     double tmp;
-    cout << typeid(opt_).name() << endl;
+    //cout << typeid(opt_).name() << endl;
     tmp = pnl_vect_get(delta,1) / pnl_mat_get(path_,0,3);
     pnl_vect_set(delta,1,tmp);
     tmp = pnl_vect_get(delta,2) / pnl_mat_get(path_,0,4);
