@@ -11,6 +11,9 @@ PerformanceOption::PerformanceOption()
 PerformanceOption::~PerformanceOption()
 {}
 
+double PerformanceOption::exactPrice0(BlackScholesModel *b){
+    return 0.0;
+}
 double PerformanceOption::payoff(const PnlMat *path){
   double sum_perf1=0;// somme sur les actifs(numerateur)
   double sum_perf2=0;// somme sur les actifs(denominateur)

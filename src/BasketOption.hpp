@@ -1,6 +1,6 @@
 #ifndef DEF_BASKETOPTION
 #define DEF_BASKETOPTION
-
+#include "BlackScholesModel.hpp"
 #include "Option.hpp"
 
 class BasketOption : public Option
@@ -29,6 +29,7 @@ class BasketOption : public Option
     *@param[in] path trajectoire du sous-jacent
     */
     double payoff(const PnlMat *path);
+    double exactPrice0(BlackScholesModel *b);
 };
 
 #endif

@@ -81,8 +81,10 @@ int main (int argc, char **argv)
 	mc.delta(past, 0, deltas);
       }
       clock_t endDelta = (clock() - startDelta) / (double)(CLOCKS_PER_SEC/1000);
+      if (optionType=="quanto" || optionType=="basket"){
+          cout << "\nPrice at t=0 with formule fermé: " << opt->exactPrice0(&bsModel) << endl;
+      }
 
-      cout << "\nPrice at t=0 with formule fermé: " << pnl_bs_call(100*exp(-(r-0.04+ 0.1*0.2*0.2)*T),strike,T,r,0,0.2) << endl;
 
       cout << "\nPrice at t=0: " << initialPrice << endl;
       cout << "IC: " << initialConf << endl;
@@ -103,9 +105,12 @@ int main (int argc, char **argv)
 
       clock_t startPL;
       startPL = clock();
+      if ( optionType == "eurostral") {
+            mc.profitLoss_Eurostral(past, past->m - 1, pl);
+      } else {
       mc.profitLoss(past, past->m - 1, pl);
-      clock_t endPL = (clock() - startPL) / (double)(CLOCKS_PER_SEC/1000);
-
+  }
+    clock_t endPL = (clock() - startPL) / (double)(CLOCKS_PER_SEC/1000);
       cout << "\nP&L : " << pl << endl;
       cout << "Time for P&L: " << endPL << " ms\n" << endl;
 
@@ -122,13 +127,24 @@ int main (int argc, char **argv)
 
       clock_t startPL;
       startPL = clock();
-      mc.profitLoss_Eurostral(past, past->m - 1, pl);
+      if (optionType=="eurostral"){
+          mc.profitLoss_Eurostral(past, past->m - 1, pl);
+      }
+      else {
+          mc.profitLoss(past, past->m - 1, pl);
+      }
       clock_t endPL = (clock() - startPL) / (double)(CLOCKS_PER_SEC/1000);
 
       cout << "\nP&L : " << pl << endl;
       cout << "Time for P&L: " << endPL << " ms\n" << endl;
-      mc.priceEurostral(pastAtConstatation, t, price, conf);
-      mc.deltaEurostral(pastAtConstatation, t, deltas);
+      if (optionType=="eurostral"){
+          mc.priceEurostral(pastAtConstatation, t, price, conf);
+          mc.deltaEurostral(pastAtConstatation, t, deltas);
+      }
+      else{
+          mc.price(pastAtConstatation, t, price, conf);
+          mc.delta(pastAtConstatation, t, deltas);
+      }
 
       cout << "\nPrice at t= " << t << ": " << price << endl;
       cout << "IC: " << conf << endl;

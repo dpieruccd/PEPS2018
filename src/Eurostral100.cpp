@@ -14,7 +14,9 @@ Eurostral100::Eurostral100(double strike, double T1,int nbTimeSteps1,int size1,P
 Eurostral100::Eurostral100()
   :Option()
 {}
-
+double Eurostral100::exactPrice0(BlackScholesModel *b){
+    return 0.0;
+}
 
 Eurostral100::~Eurostral100()
 {}
@@ -34,7 +36,7 @@ double Eurostral100::payoff(const PnlMat *path){
     cour1 = (pnl_vect_get(indice1,i+1)-init1)/init1;
     cour2 = (pnl_vect_get(indice2,i+1)-init2)/init2;
     cour3 = (pnl_vect_get(indice3,i+1)-init3)/init3;
-    
+
     ma = max(max(cour1,cour2),cour3);
     mi = min(min(cour1,cour2),cour3);
     if ( cour1 != ma && cour1 != mi ) {
@@ -52,5 +54,3 @@ double Eurostral100::payoff(const PnlMat *path){
   }
   return 1.0+0.55*payoff;
 }
-
-

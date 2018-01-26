@@ -16,7 +16,7 @@ public:
   *Constructeur par defaut de l'option performance
   */
   PerformanceOption();
-
+  double exactPrice0(BlackScholesModel *b);
   /**
   *Destructeur de l'option performance
   */

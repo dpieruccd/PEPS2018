@@ -12,7 +12,7 @@ interest rate       <float>   0.04879
 correlation         <float>   0.1
 payoff coefficients <vector> 0.025
 option type         <string>  eurostral
-trend               <vector>  0.04879 0.044 0.054 0.00879 -0.00121
+trend               <vector>  0.04879 0.036 0.046 0.00879 -0.00121
 
 timestep number     <int>     16
 sample number       <long>     50000

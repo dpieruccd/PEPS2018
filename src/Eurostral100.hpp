@@ -29,6 +29,7 @@ class Eurostral100 : public Option
     *@param[in] path trajectoire du sous-jacent
     */
     double payoff(const PnlMat *path);
+    double exactPrice0(BlackScholesModel *b);
 };
 
 #endif

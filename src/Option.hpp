@@ -2,7 +2,7 @@
 
 #include "pnl/pnl_vector.h"
 #include "pnl/pnl_matrix.h"
-
+#include "BlackScholesModel.hpp"
 /// \brief Classe Option abstraite
 class Option
 {
@@ -20,7 +20,7 @@ public:
    * @return phi(trajectoire)
    */
   virtual double payoff(const PnlMat *path) = 0;
-
+  virtual double exactPrice0(BlackScholesModel *b) =0;
   /**
    * Constructeur de l'Option
    *
