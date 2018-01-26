@@ -82,7 +82,7 @@ int main (int argc, char **argv)
       }
       clock_t endDelta = (clock() - startDelta) / (double)(CLOCKS_PER_SEC/1000);
 
-      cout << "\nPrice at t=0 with formule fermé: " << pnl_bs_call(100*exp(-(r-0.04-0.1*0.2*0.2)*T),strike,T,r,0,0.2) << endl;
+      cout << "\nPrice at t=0 with formule fermé: " << pnl_bs_call(100*exp(-(r-0.04+ 0.1*0.2*0.2)*T),strike,T,r,0,0.2) << endl;
 
       cout << "\nPrice at t=0: " << initialPrice << endl;
       cout << "IC: " << initialConf << endl;
