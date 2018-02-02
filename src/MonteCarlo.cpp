@@ -75,6 +75,7 @@ void MonteCarlo::priceEurostral(double &prix, double &ic)
       sum += payoff_;
       sq_sum += payoff_ * payoff_;
     }
+    //pnl_mat_print(path_);
     prix = cf_act_ * sum;
     ic = 1.96 * cf_act_ * sqrt(sq_sum - pow(sum, 2) / nbSamples_);
     pnl_mat_free(&path_);
@@ -100,7 +101,7 @@ void MonteCarlo::price(const PnlMat *past, double t, double &prix, double &ic)
     sq_sum += payoff_ * payoff_;
   }
 
-  //pnl_vect_print(vect);
+  //pnl_mat_print(path_);
   prix = cf_act_ * sum;
   ic = 1.96 * cf_act_ * sqrt(sq_sum - pow(sum, 2) / nbSamples_);
   pnl_mat_free(&path_);
@@ -122,11 +123,13 @@ void MonteCarlo::priceEurostral(const PnlMat *past, double t, double &prix, doub
     payoff_ = opt_->payoff(path_);
     pnl_mat_get_row(pathb,path_,1);
     pnl_vect_plus_vect(vect,pathb);
-	  sum += payoff_;
+    sum += payoff_;
     sq_sum += payoff_ * payoff_;
   }
 
   //pnl_vect_print(vect);
+  pnl_vect_free(&vect);
+  pnl_vect_free(&pathb);
   prix = cf_act_ * sum;
   ic = 1.96 * cf_act_ * sqrt(sq_sum - pow(sum, 2) / nbSamples_);
   pnl_mat_free(&path_);
@@ -230,8 +233,8 @@ double MonteCarlo::PL_init_Eurostral(const PnlMat *past, PnlVect *delta){
     double r_aus= -1*pnl_vect_get(mod_->trends_,4) + mod_->r_;
     pnl_mat_extract_subblock(currPast, past, 0, 1, 0, past->n);
 
-    this->delta(currPast, 0.0, delta);
-    this->price(p, ic);
+    this->deltaEurostral(currPast, 0.0, delta);
+    this->priceEurostral(p, ic);
     //p -= pnl_vect_scalar_prod(delta, &S);
     p-= pnl_vect_get(delta,0)*pnl_vect_get(S,0);
     p-=pnl_vect_get(delta,1)*pnl_vect_get(S,1)*pnl_vect_get(S,3);
@@ -239,7 +242,7 @@ double MonteCarlo::PL_init_Eurostral(const PnlMat *past, PnlVect *delta){
     p-=pnl_vect_get(delta,3)*exp(-(opt_->T_* r_dollar))*pnl_vect_get(S,3);
     p-=pnl_vect_get(delta,4)*exp(-(opt_->T_* r_aus))*pnl_vect_get(S,4);
 
-
+    pnl_vect_free(&S);
     pnl_mat_free(&currPast);
     return(p);
 }
@@ -270,7 +273,6 @@ void MonteCarlo::PL_build_V(const PnlMat *past, double H,
                      pnl_vect_get(V, i-1) * expCoef +
                      pnl_vect_scalar_prod(prevDelta, &S)
                      );
-
         pnl_vect_clone(prevDelta, delta);
     }
     pnl_vect_free(&prevDelta);
@@ -282,6 +284,7 @@ void MonteCarlo::PL_build_V_Eurostral(const PnlMat *past, double H,PnlVect *delt
     double expCoef = exp(mod_->r_ * opt_->T_/ H), tho;
     PnlVect *prevDelta = pnl_vect_create_from_zero(past->n);
     PnlMat *cPast = pnl_mat_create_from_zero(1, past->n);
+    PnlVect *S = pnl_vect_create_from_zero(past->n);
     double r_dollar= -1*pnl_vect_get(mod_->trends_,3) + mod_->r_;
     double r_aus= -1*pnl_vect_get(mod_->trends_,4) + mod_->r_;
     pnl_vect_clone(prevDelta, delta);
@@ -291,25 +294,26 @@ void MonteCarlo::PL_build_V_Eurostral(const PnlMat *past, double H,PnlVect *delt
     {
         tho = i * opt_->T_ /H;
         u.getConstatationDatesFromZero(cPast, past, opt_, tho);
-        this->delta(cPast, tho, delta);
-
-        PnlVect S = pnl_vect_wrap_mat_row(cPast, cPast->m-1);
-        pnl_vect_set(&S,1,pnl_vect_get(&S,1)*pnl_vect_get(&S,3));
-        pnl_vect_set(&S,2,pnl_vect_get(&S,2)*pnl_vect_get(&S,4));
-        pnl_vect_set(&S,3,exp(-((opt_->T_-tho)* r_dollar))* pnl_vect_get(&S,3)) ;
-        pnl_vect_set(&S,4,exp(-((opt_->T_-tho)* r_aus))* pnl_vect_get(&S,4)) ;
+        this->deltaEurostral(cPast, tho, delta);
+	pnl_mat_get_row(S,cPast, cPast->m-1);
+        pnl_vect_set(S,1,pnl_vect_get(S,1)*pnl_vect_get(S,3));
+        pnl_vect_set(S,2,pnl_vect_get(S,2)*pnl_vect_get(S,4));
+        pnl_vect_set(S,3,exp(-((opt_->T_-tho)* r_dollar))* pnl_vect_get(S,3)) ;
+        pnl_vect_set(S,4,exp(-((opt_->T_-tho)* r_aus))* pnl_vect_get(S,4)) ;
         this->priceEurostral(cPast,tho,prix,ic);
-        trackingErrror=pnl_vect_scalar_prod(prevDelta, &S)+pnl_vect_get(V,i-1)- prix;
+        trackingErrror=pnl_vect_scalar_prod(prevDelta, S)+pnl_vect_get(V,i-1)- prix;
         cout<<trackingErrror<<endl;
         pnl_vect_minus_vect(prevDelta, delta);
 
         pnl_vect_set(V, i,
                      pnl_vect_get(V, i-1) * expCoef +
-                     pnl_vect_scalar_prod(prevDelta, &S)
+                     pnl_vect_scalar_prod(prevDelta, S)
                      );
 
         pnl_vect_clone(prevDelta, delta);
+
     }
+    pnl_vect_free(&S);
     pnl_vect_free(&prevDelta);
     pnl_mat_free(&cPast);
 }
@@ -329,15 +333,17 @@ void MonteCarlo::PL_finalSet_Eurostral(const PnlMat *past, double v_h, PnlVect *
 {
     double p, ic;
     PnlMat* constDates = u.getConstatationDates(past, opt_, opt_->T_);
-    PnlVect S = pnl_vect_wrap_mat_row(past, past->m-1);
+    PnlVect *S = pnl_vect_create_from_zero(past->n);
+    pnl_mat_get_row(S,past, past->m-1);
 
-    this->price(constDates, opt_->T_, p, ic);
+    this->priceEurostral(constDates, opt_->T_, p, ic);
 
-    pnl_vect_set(&S,1,pnl_vect_get(&S,1)*pnl_vect_get(&S,3));
-    pnl_vect_set(&S,2,pnl_vect_get(&S,2)*pnl_vect_get(&S,4));
+    pnl_vect_set(S,1,pnl_vect_get(S,1)*pnl_vect_get(S,3));
+    pnl_vect_set(S,2,pnl_vect_get(S,2)*pnl_vect_get(S,4));
 
-    pl = v_h + pnl_vect_scalar_prod(delta, &S) - p;
-
+    pl = v_h + pnl_vect_scalar_prod(delta, S) - p;
+    
+    pnl_vect_free(&S);
     pnl_mat_free(&constDates);
 }
 

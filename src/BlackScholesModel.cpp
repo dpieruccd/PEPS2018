@@ -76,6 +76,7 @@ BlackScholesModel::~BlackScholesModel()
        }
        pastPrices = pnl_vect_wrap_mat_row(path, i+1);
    }
+
  }
 
 void BlackScholesModel::asset_static(PnlMat *path, double T, int nbTimeSteps, PnlRng *rng){

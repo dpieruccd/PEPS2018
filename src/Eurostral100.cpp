@@ -52,5 +52,9 @@ double Eurostral100::payoff(const PnlMat *path){
   if ( payoff < 0 ) {
     return 1.0;
   }
+
+  pnl_vect_free(&indice1);
+  pnl_vect_free(&indice2);
+  pnl_vect_free(&indice3);
   return 1.0+0.55*payoff;
 }

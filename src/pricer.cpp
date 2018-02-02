@@ -137,7 +137,8 @@ int main (int argc, char **argv)
 
       cout << "\nP&L : " << pl << endl;
       cout << "Time for P&L: " << endPL << " ms\n" << endl;
-      if (optionType=="eurostral"){
+     
+      /* if (optionType=="eurostral"){
           mc.priceEurostral(pastAtConstatation, t, price, conf);
           mc.deltaEurostral(pastAtConstatation, t, deltas);
       }
@@ -151,7 +152,7 @@ int main (int argc, char **argv)
       cout << "Confidence interval at t=" << t << ": [" << price - conf << " ; " << price + conf << "]" << endl;
       cout << "Deltas at t=" <<  t << ": " <<endl;
       pnl_vect_print_asrow(deltas);
-      cout << endl;
+      cout << endl;*/
 
       //Free the memory
       pnl_mat_free(&past);
